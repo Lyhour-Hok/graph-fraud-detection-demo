@@ -1,0 +1,5 @@
+# Offline pipeline (Phase 1 / 1b), on top of requirements.txt
+-r requirements.txt
+networkx==3.3
+node2vec==0.5.0
+psutil

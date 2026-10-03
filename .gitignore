@@ -1,0 +1,9 @@
+# offline-only intermediates and logs (not needed by the website)
+build/
+data/
+*.log
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+.streamlit/secrets.toml

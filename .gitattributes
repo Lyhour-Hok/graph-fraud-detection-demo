@@ -1,0 +1,2 @@
+# binary model / data artifacts: never diff or normalize line endings
+artifacts/** binary

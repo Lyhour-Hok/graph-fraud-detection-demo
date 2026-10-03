@@ -1,0 +1,6 @@
+[server]
+# Uploads are capped at 5 MB (well above 500 rows of fraudTrain.csv); the row cap is enforced in app/engine.py
+maxUploadSize = 5
+
+[browser]
+gatherUsageStats = false

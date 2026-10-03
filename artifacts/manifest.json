@@ -1,0 +1,733 @@
+{
+  "dataset": {
+    "source": "Kaggle kartik2112/fraud-detection, fraudTrain.csv",
+    "full_rows": 1296675,
+    "full_fraud": 7506,
+    "sampling": "Option B: all fraud + 20% of genuine (random_state=42)",
+    "sample_rows": 265340,
+    "sample_fraud": 7506,
+    "sample_fraud_rate": 0.0283
+  },
+  "updated": "2026-10-03T06:47:03",
+  "graphs": {
+    "bipartite": {
+      "nodes": 1676,
+      "edges": 201725,
+      "fraud_edges": 7391,
+      "embedded": "2026-10-01 22:58",
+      "split": {
+        "train": 141207,
+        "train_fraud": 5174,
+        "train_used_1to1": 10348,
+        "test": 60518,
+        "test_fraud": 2217
+      }
+    },
+    "tripartite": {
+      "nodes": 267016,
+      "edges": 530680,
+      "fraud_edges": 15012,
+      "embedded": "2026-10-01 23:31",
+      "split": {
+        "train": 371476,
+        "train_fraud": 10508,
+        "train_used_1to1": 21016,
+        "test": 159204,
+        "test_fraud": 4504
+      }
+    }
+  },
+  "thesis": {
+    "label": "Thesis Model",
+    "classifier": "RandomForestClassifier(n_estimators=100, random_state=42), trained on the 1:1 undersampled training set",
+    "published_table_4_1": [
+      {
+        "graph": "bipartite",
+        "operator": "hadamard",
+        "precision": 0.078,
+        "recall": 0.681,
+        "f1": 0.14,
+        "roc_auc": 0.748,
+        "pr_auc": 0.158,
+        "TP": 1510,
+        "FP": 17784,
+        "FN": 707,
+        "TN": 40517
+      },
+      {
+        "graph": "bipartite",
+        "operator": "average",
+        "precision": 0.079,
+        "recall": 0.666,
+        "f1": 0.141,
+        "roc_auc": 0.736,
+        "pr_auc": 0.105,
+        "TP": 1476,
+        "FP": 17236,
+        "FN": 741,
+        "TN": 41065
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l1",
+        "precision": 0.058,
+        "recall": 0.606,
+        "f1": 0.106,
+        "roc_auc": 0.659,
+        "pr_auc": 0.078,
+        "TP": 1343,
+        "FP": 21815,
+        "FN": 874,
+        "TN": 36486
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l2",
+        "precision": 0.058,
+        "recall": 0.604,
+        "f1": 0.106,
+        "roc_auc": 0.659,
+        "pr_auc": 0.078,
+        "TP": 1339,
+        "FP": 21719,
+        "FN": 878,
+        "TN": 36582
+      },
+      {
+        "graph": "tripartite",
+        "operator": "hadamard",
+        "precision": 0.086,
+        "recall": 0.721,
+        "f1": 0.154,
+        "roc_auc": 0.805,
+        "pr_auc": 0.28,
+        "TP": 3246,
+        "FP": 34463,
+        "FN": 1258,
+        "TN": 120237
+      },
+      {
+        "graph": "tripartite",
+        "operator": "average",
+        "precision": 0.089,
+        "recall": 0.734,
+        "f1": 0.159,
+        "roc_auc": 0.824,
+        "pr_auc": 0.266,
+        "TP": 3306,
+        "FP": 33816,
+        "FN": 1198,
+        "TN": 120884
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l1",
+        "precision": 0.034,
+        "recall": 0.526,
+        "f1": 0.064,
+        "roc_auc": 0.563,
+        "pr_auc": 0.035,
+        "TP": 2370,
+        "FP": 66832,
+        "FN": 2134,
+        "TN": 87868
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l2",
+        "precision": 0.034,
+        "recall": 0.526,
+        "f1": 0.064,
+        "roc_auc": 0.563,
+        "pr_auc": 0.035,
+        "TP": 2368,
+        "FP": 67069,
+        "FN": 2136,
+        "TN": 87631
+      }
+    ],
+    "published_baseline_pr_auc": {
+      "bipartite": 0.037,
+      "tripartite": 0.028
+    },
+    "published_kmeans_table_4_3": [
+      {
+        "graph": "bipartite",
+        "operator": "hadamard",
+        "precision": 0.039,
+        "recall": 0.567,
+        "f1": 0.072,
+        "lift": 1.056,
+        "ARI": -0.001
+      },
+      {
+        "graph": "bipartite",
+        "operator": "average",
+        "precision": 0.044,
+        "recall": 0.431,
+        "f1": 0.08,
+        "lift": 1.204,
+        "ARI": 0.006
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l1",
+        "precision": 0.055,
+        "recall": 0.292,
+        "f1": 0.092,
+        "lift": 1.496,
+        "ARI": 0.024
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l2",
+        "precision": 0.056,
+        "recall": 0.194,
+        "f1": 0.086,
+        "lift": 1.516,
+        "ARI": 0.026
+      },
+      {
+        "graph": "tripartite",
+        "operator": "hadamard",
+        "precision": 0.038,
+        "recall": 0.365,
+        "f1": 0.069,
+        "lift": 1.341,
+        "ARI": 0.011
+      },
+      {
+        "graph": "tripartite",
+        "operator": "average",
+        "precision": 0.032,
+        "recall": 0.646,
+        "f1": 0.06,
+        "lift": 1.117,
+        "ARI": -0.002
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l1",
+        "precision": 0.03,
+        "recall": 0.552,
+        "f1": 0.057,
+        "lift": 1.058,
+        "ARI": -0.0
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l2",
+        "precision": 0.029,
+        "recall": 0.863,
+        "f1": 0.057,
+        "lift": 1.038,
+        "ARI": -0.007
+      }
+    ],
+    "published_grouped_table_4_4": [
+      {
+        "operator": "hadamard",
+        "precision": 0.08,
+        "recall": 0.717,
+        "f1": 0.143,
+        "roc_auc": 0.798,
+        "pr_auc": 0.262
+      },
+      {
+        "operator": "average",
+        "precision": 0.082,
+        "recall": 0.725,
+        "f1": 0.147,
+        "roc_auc": 0.814,
+        "pr_auc": 0.232
+      },
+      {
+        "operator": "l1",
+        "precision": 0.031,
+        "recall": 0.56,
+        "f1": 0.059,
+        "roc_auc": 0.549,
+        "pr_auc": 0.033
+      },
+      {
+        "operator": "l2",
+        "precision": 0.031,
+        "recall": 0.561,
+        "f1": 0.059,
+        "roc_auc": 0.548,
+        "pr_auc": 0.033
+      }
+    ],
+    "rerun": [
+      {
+        "graph": "bipartite",
+        "operator": "hadamard",
+        "TP": 1476,
+        "FP": 17774,
+        "FN": 741,
+        "TN": 40527,
+        "precision": 0.077,
+        "recall": 0.666,
+        "f1": 0.138,
+        "roc_auc": 0.743,
+        "pr_auc": 0.167,
+        "baseline_pr_auc": 0.037
+      },
+      {
+        "graph": "bipartite",
+        "operator": "average",
+        "TP": 1464,
+        "FP": 17426,
+        "FN": 753,
+        "TN": 40875,
+        "precision": 0.078,
+        "recall": 0.66,
+        "f1": 0.139,
+        "roc_auc": 0.733,
+        "pr_auc": 0.102,
+        "baseline_pr_auc": 0.037
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l1",
+        "TP": 1393,
+        "FP": 21894,
+        "FN": 824,
+        "TN": 36407,
+        "precision": 0.06,
+        "recall": 0.628,
+        "f1": 0.109,
+        "roc_auc": 0.665,
+        "pr_auc": 0.076,
+        "baseline_pr_auc": 0.037
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l2",
+        "TP": 1371,
+        "FP": 21644,
+        "FN": 846,
+        "TN": 36657,
+        "precision": 0.06,
+        "recall": 0.618,
+        "f1": 0.109,
+        "roc_auc": 0.665,
+        "pr_auc": 0.076,
+        "baseline_pr_auc": 0.037
+      },
+      {
+        "graph": "tripartite",
+        "operator": "hadamard",
+        "TP": 3266,
+        "FP": 34151,
+        "FN": 1238,
+        "TN": 120549,
+        "precision": 0.087,
+        "recall": 0.725,
+        "f1": 0.156,
+        "roc_auc": 0.804,
+        "pr_auc": 0.279,
+        "baseline_pr_auc": 0.028
+      },
+      {
+        "graph": "tripartite",
+        "operator": "average",
+        "TP": 3306,
+        "FP": 33936,
+        "FN": 1198,
+        "TN": 120764,
+        "precision": 0.089,
+        "recall": 0.734,
+        "f1": 0.158,
+        "roc_auc": 0.822,
+        "pr_auc": 0.261,
+        "baseline_pr_auc": 0.028
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l1",
+        "TP": 2229,
+        "FP": 65164,
+        "FN": 2275,
+        "TN": 89536,
+        "precision": 0.033,
+        "recall": 0.495,
+        "f1": 0.062,
+        "roc_auc": 0.552,
+        "pr_auc": 0.034,
+        "baseline_pr_auc": 0.028
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l2",
+        "TP": 2250,
+        "FP": 65559,
+        "FN": 2254,
+        "TN": 89141,
+        "precision": 0.033,
+        "recall": 0.5,
+        "f1": 0.062,
+        "roc_auc": 0.552,
+        "pr_auc": 0.034,
+        "baseline_pr_auc": 0.028
+      }
+    ],
+    "trained": "2026-10-01 23:32",
+    "rerun_kmeans": [
+      {
+        "graph": "bipartite",
+        "operator": "hadamard",
+        "precision": 0.041,
+        "recall": 0.375,
+        "f1": 0.074,
+        "lift": 1.12,
+        "ARI": 0.004,
+        "flagged_pct": 33.463
+      },
+      {
+        "graph": "bipartite",
+        "operator": "average",
+        "precision": 0.041,
+        "recall": 0.321,
+        "f1": 0.073,
+        "lift": 1.117,
+        "ARI": 0.005,
+        "flagged_pct": 28.745
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l1",
+        "precision": 0.056,
+        "recall": 0.278,
+        "f1": 0.094,
+        "lift": 1.541,
+        "ARI": 0.026,
+        "flagged_pct": 18.023
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l2",
+        "precision": 0.056,
+        "recall": 0.185,
+        "f1": 0.087,
+        "lift": 1.54,
+        "ARI": 0.027,
+        "flagged_pct": 12.036
+      },
+      {
+        "graph": "tripartite",
+        "operator": "hadamard",
+        "precision": 0.03,
+        "recall": 0.27,
+        "f1": 0.054,
+        "lift": 1.052,
+        "ARI": 0.002,
+        "flagged_pct": 25.719
+      },
+      {
+        "graph": "tripartite",
+        "operator": "average",
+        "precision": 0.032,
+        "recall": 0.647,
+        "f1": 0.061,
+        "lift": 1.13,
+        "ARI": -0.002,
+        "flagged_pct": 57.269
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l1",
+        "precision": 0.029,
+        "recall": 0.646,
+        "f1": 0.056,
+        "lift": 1.031,
+        "ARI": -0.001,
+        "flagged_pct": 62.657
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l2",
+        "precision": 0.029,
+        "recall": 0.853,
+        "f1": 0.056,
+        "lift": 1.029,
+        "ARI": -0.006,
+        "flagged_pct": 82.853
+      }
+    ],
+    "rerun_grouped": [
+      {
+        "operator": "hadamard",
+        "TP": 3310,
+        "FP": 37503,
+        "FN": 1110,
+        "TN": 117281,
+        "precision": 0.081,
+        "recall": 0.749,
+        "f1": 0.146,
+        "roc_auc": 0.814,
+        "pr_auc": 0.279
+      },
+      {
+        "operator": "average",
+        "TP": 3335,
+        "FP": 36661,
+        "FN": 1085,
+        "TN": 118123,
+        "precision": 0.083,
+        "recall": 0.755,
+        "f1": 0.15,
+        "roc_auc": 0.827,
+        "pr_auc": 0.24
+      },
+      {
+        "operator": "l1",
+        "TP": 2629,
+        "FP": 76338,
+        "FN": 1791,
+        "TN": 78446,
+        "precision": 0.033,
+        "recall": 0.595,
+        "f1": 0.063,
+        "roc_auc": 0.573,
+        "pr_auc": 0.036
+      },
+      {
+        "operator": "l2",
+        "TP": 2609,
+        "FP": 76942,
+        "FN": 1811,
+        "TN": 77842,
+        "precision": 0.033,
+        "recall": 0.59,
+        "f1": 0.062,
+        "roc_auc": 0.571,
+        "pr_auc": 0.036
+      }
+    ]
+  },
+  "samples": {
+    "source": "fraudTest.csv (held out: no trans_num overlaps fraudTrain.csv)",
+    "rows": 10,
+    "fraud": 6,
+    "unseen_customers": 2
+  },
+  "enhanced": {
+    "label": "Enhanced Model (tuned)",
+    "classifier": "RandomForestClassifier tuned by GridSearchCV (5-fold stratified CV, scoring='average_precision') on the same 1:1 undersampled training set as the Thesis Model",
+    "param_grid": {
+      "n_estimators": [
+        100,
+        200,
+        300
+      ],
+      "max_depth": [
+        null,
+        10,
+        20,
+        30
+      ],
+      "min_samples_split": [
+        2,
+        5,
+        10
+      ],
+      "min_samples_leaf": [
+        1,
+        2,
+        4
+      ],
+      "max_features": [
+        "sqrt",
+        "log2"
+      ]
+    },
+    "rerun": [
+      {
+        "graph": "bipartite",
+        "operator": "hadamard",
+        "TP": 1522,
+        "FP": 18430,
+        "FN": 695,
+        "TN": 39871,
+        "precision": 0.076,
+        "recall": 0.687,
+        "f1": 0.137,
+        "roc_auc": 0.75,
+        "pr_auc": 0.188,
+        "baseline_pr_auc": 0.037,
+        "best_params": {
+          "max_depth": 30,
+          "max_features": "sqrt",
+          "min_samples_leaf": 1,
+          "min_samples_split": 10,
+          "n_estimators": 300
+        },
+        "cv_pr_auc": 0.76,
+        "search_minutes": 46.8
+      },
+      {
+        "graph": "bipartite",
+        "operator": "average",
+        "TP": 1499,
+        "FP": 17459,
+        "FN": 718,
+        "TN": 40842,
+        "precision": 0.079,
+        "recall": 0.676,
+        "f1": 0.142,
+        "roc_auc": 0.743,
+        "pr_auc": 0.114,
+        "baseline_pr_auc": 0.037,
+        "best_params": {
+          "max_depth": 30,
+          "max_features": "log2",
+          "min_samples_leaf": 4,
+          "min_samples_split": 2,
+          "n_estimators": 300
+        },
+        "cv_pr_auc": 0.724,
+        "search_minutes": 39.1
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l1",
+        "TP": 1419,
+        "FP": 22578,
+        "FN": 798,
+        "TN": 35723,
+        "precision": 0.059,
+        "recall": 0.64,
+        "f1": 0.108,
+        "roc_auc": 0.674,
+        "pr_auc": 0.083,
+        "baseline_pr_auc": 0.037,
+        "best_params": {
+          "max_depth": 20,
+          "max_features": "sqrt",
+          "min_samples_leaf": 1,
+          "min_samples_split": 5,
+          "n_estimators": 300
+        },
+        "cv_pr_auc": 0.665,
+        "search_minutes": 46.1
+      },
+      {
+        "graph": "bipartite",
+        "operator": "l2",
+        "TP": 1439,
+        "FP": 22871,
+        "FN": 778,
+        "TN": 35430,
+        "precision": 0.059,
+        "recall": 0.649,
+        "f1": 0.108,
+        "roc_auc": 0.673,
+        "pr_auc": 0.081,
+        "baseline_pr_auc": 0.037,
+        "best_params": {
+          "max_depth": 30,
+          "max_features": "log2",
+          "min_samples_leaf": 1,
+          "min_samples_split": 2,
+          "n_estimators": 300
+        },
+        "cv_pr_auc": 0.664,
+        "search_minutes": 44.2
+      },
+      {
+        "graph": "tripartite",
+        "operator": "hadamard",
+        "TP": 3323,
+        "FP": 34166,
+        "FN": 1181,
+        "TN": 120534,
+        "precision": 0.089,
+        "recall": 0.738,
+        "f1": 0.158,
+        "roc_auc": 0.809,
+        "pr_auc": 0.319,
+        "baseline_pr_auc": 0.028,
+        "best_params": {
+          "max_depth": null,
+          "max_features": "log2",
+          "min_samples_leaf": 1,
+          "min_samples_split": 5,
+          "n_estimators": 300
+        },
+        "cv_pr_auc": 0.843,
+        "search_minutes": 112.3
+      },
+      {
+        "graph": "tripartite",
+        "operator": "average",
+        "TP": 3328,
+        "FP": 32750,
+        "FN": 1176,
+        "TN": 121950,
+        "precision": 0.092,
+        "recall": 0.739,
+        "f1": 0.164,
+        "roc_auc": 0.827,
+        "pr_auc": 0.304,
+        "baseline_pr_auc": 0.028,
+        "best_params": {
+          "max_depth": null,
+          "max_features": "log2",
+          "min_samples_leaf": 4,
+          "min_samples_split": 10,
+          "n_estimators": 300
+        },
+        "cv_pr_auc": 0.844,
+        "search_minutes": 115.9
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l1",
+        "TP": 2484,
+        "FP": 70114,
+        "FN": 2020,
+        "TN": 84586,
+        "precision": 0.034,
+        "recall": 0.552,
+        "f1": 0.064,
+        "roc_auc": 0.57,
+        "pr_auc": 0.038,
+        "baseline_pr_auc": 0.028,
+        "best_params": {
+          "max_depth": 20,
+          "max_features": "sqrt",
+          "min_samples_leaf": 1,
+          "min_samples_split": 10,
+          "n_estimators": 300
+        },
+        "cv_pr_auc": 0.584,
+        "search_minutes": 111.8
+      },
+      {
+        "graph": "tripartite",
+        "operator": "l2",
+        "TP": 2430,
+        "FP": 66776,
+        "FN": 2074,
+        "TN": 87924,
+        "precision": 0.035,
+        "recall": 0.54,
+        "f1": 0.066,
+        "roc_auc": 0.58,
+        "pr_auc": 0.039,
+        "baseline_pr_auc": 0.028,
+        "best_params": {
+          "max_depth": null,
+          "max_features": "sqrt",
+          "min_samples_leaf": 4,
+          "min_samples_split": 10,
+          "n_estimators": 300
+        },
+        "cv_pr_auc": 0.583,
+        "search_minutes": 106.3
+      }
+    ],
+    "trained": "2026-10-03 06:47"
+  }
+}

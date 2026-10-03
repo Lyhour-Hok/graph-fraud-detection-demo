@@ -1,0 +1,11 @@
+trans_date_trans_time,cc_num,merchant,category,amt,trans_num,is_fraud
+2020-06-24 00:26:45,180098888332620,fraud_DuBuque LLC,grocery_pos,315.45,6337ebf236753a68a2697295960a30b7,1
+2020-12-17 23:43:58,2714019737356678,fraud_Heathcote LLC,shopping_net,913.22,1057d6d529be008234caffe13808aead,1
+2020-12-26 03:46:04,6596735789587928,fraud_Pouros-Haag,shopping_pos,2.36,828b54bd4d205f1114bce6fa8bc8f433,0
+2020-08-09 23:12:26,4476840372112,fraud_Schoen-Quigley,kids_pets,20.36,27aa8bc3f3bc59afbc70383a93f8e5e7,1
+2020-11-05 11:29:52,6011388901471808,"fraud_Goldner, Kovacek and Abbott",grocery_pos,115.8,506ea157ec09c9f04eb3ea8bed59d33a,0
+2020-10-10 23:00:53,4104312520615374,fraud_Rolfson-Kunde,personal_care,21.87,7b5d5da72731df5457282002a2057955,1
+2020-07-02 23:17:05,3540416671210051,fraud_Balistreri-Nader,misc_pos,9.03,b6a8fb11da28ccd05d94fc836fbd0702,1
+2020-12-29 19:17:03,371226440126102,"fraud_Medhurst, Cartwright and Ebert",personal_care,60.51,048c8b965dfcbdd9b023f6a5160beb0d,0
+2020-09-28 16:21:40,6011477612335392,"fraud_Schmeler, Bashirian and Price",shopping_net,1110.98,22a715a7997acc01e7e3ac5c3dcf77d3,1
+2020-08-04 22:27:26,30551643947183,"fraud_Mante, Luettgen and Hackett",health_fitness,5.55,383ac06cc8c02ef1e2c2bee329a30f77,0
