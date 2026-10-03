@@ -8,7 +8,10 @@ Node2Vec is transductive: only nodes present in the training graph have embeddin
 is handled is recorded per transaction in `confidence` and `note` (see `GraphModel.score`).
 """
 import json
+import os
 import re
+import threading
+from collections import OrderedDict
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -30,6 +33,43 @@ IN_GRAPH, KNOWN, APPROX, LOW, UNAVAILABLE = "In graph", "Known entities", "Appro
 MAX_ROWS = 500
 REQUIRED_COLUMNS = ["cc_num", "merchant", "amt"]
 
+# Classifiers are the bulk of the memory (16 forests, ~0.9 GB loaded). They are loaded on first use
+# and the least recently used ones are dropped once their total exceeds this budget.
+MODEL_BUDGET_MB = float(os.environ.get("MODEL_BUDGET_MB", 600))
+
+
+def forest_mb(clf):
+    """In-memory size of a fitted RandomForest's tree arrays, in MB."""
+    total = 0
+    for est in clf.estimators_:
+        state = est.tree_.__getstate__()
+        total += state["nodes"].nbytes + state["values"].nbytes
+    return total / 1e6
+
+
+class ModelCache:
+    """Lazily loaded classifiers, shared by every session, bounded by MODEL_BUDGET_MB (LRU)."""
+
+    def __init__(self, budget_mb=MODEL_BUDGET_MB):
+        self.budget_mb = budget_mb
+        self._models = OrderedDict()          # path -> (clf, mb)
+        self._lock = threading.Lock()
+
+    def get(self, path):
+        with self._lock:
+            if path in self._models:
+                self._models.move_to_end(path)
+                return self._models[path][0]
+            clf = joblib.load(path)
+            clf.n_jobs = 1                    # tiny batches: threading overhead dominates
+            self._models[path] = (clf, forest_mb(clf))
+            while len(self._models) > 1 and self.loaded_mb() > self.budget_mb:
+                self._models.popitem(last=False)
+            return clf
+
+    def loaded_mb(self):
+        return sum(mb for _, mb in self._models.values())
+
 
 def edge_features(A, B, method):
     """Identical to the thesis pipeline (Appendix A.5)."""
@@ -41,7 +81,7 @@ def edge_features(A, B, method):
 
 @dataclass
 class Scored:
-    probs: dict          # probs[track][operator] -> float (nan when unavailable)
+    probs: dict          # probs[track][operator] -> float (nan when unavailable); only scored tracks
     confidence: str
     note: str
     in_sample: bool      # the exact edge(s) were in the classifier's training set
@@ -51,8 +91,9 @@ class Scored:
 class GraphModel:
     """Embeddings + lookup tables + classifiers for one graph type."""
 
-    def __init__(self, name):
+    def __init__(self, name, cache):
         self.name = name
+        self.cache = cache
         self.kv = KeyedVectors.load(str(ARTIFACTS_DIR / f"{name}_wv.kv"), mmap="r")
         self.vectors = np.asarray(self.kv.vectors)
         self.key2idx = {k: i for i, k in enumerate(self.kv.index_to_key)}
@@ -76,7 +117,9 @@ class GraphModel:
             self.pairs = pairs
             self.pair_edge = dict(zip(zip(pairs.cust_key, pairs.merch_key), pairs.edge))
         else:
-            tx = pd.read_parquet(ARTIFACTS_DIR / "tripartite_transactions.parquet")
+            tx = pd.read_parquet(ARTIFACTS_DIR / "tripartite_transactions.parquet",
+                                 columns=["tx_key", "cust_key", "merch_key", "trans_num", "amt",
+                                          "is_fraud", "edge_ct", "edge_tm"])
             self.tx = tx
             self.trans_num_row = dict(zip(tx.trans_num, range(len(tx))))
             self.tx_row = dict(zip(tx.tx_key, range(len(tx))))
@@ -89,24 +132,23 @@ class GraphModel:
             self.merch_tx_mean = {k: tx_vec[r].mean(axis=0) for k, r in self.merch_rows.items()}
             self.tx_centroid = tx_vec.mean(axis=0)
 
-        self.models, self.pr = {}, {}
+        # Classifiers load lazily through the shared cache; PR curves are small, so load them now.
+        self.model_path, self.pr = {}, {}
         for track in TRACKS:
             for op in OPERATORS:
                 stem = ARTIFACTS_DIR / f"{name}_rf_{op}_{track}"
                 if Path(f"{stem}.joblib").exists():
-                    clf = joblib.load(f"{stem}.joblib")
-                    clf.n_jobs = 1          # tiny batches: threading overhead dominates
-                    self.models[(track, op)] = clf
+                    self.model_path[(track, op)] = str(f"{stem}.joblib")
                     self.pr[(track, op)] = dict(np.load(f"{stem}_pr.npz"))
 
     def vec(self, keys):
         return self.vectors[[self.key2idx[k] for k in keys]]
 
     def predict(self, track, op, A, B):
-        clf = self.models.get((track, op))
-        if clf is None or len(A) == 0:
+        path = self.model_path.get((track, op))
+        if path is None or len(A) == 0:
             return np.full(len(A), np.nan)
-        return clf.predict_proba(edge_features(A, B, op))[:, 1]
+        return self.cache.get(path).predict_proba(edge_features(A, B, op))[:, 1]
 
     # ------------------------------------------------------------------ resolving one transaction
     def resolve(self, cc_num, merchant, trans_num=None):
@@ -168,8 +210,8 @@ class GraphModel:
         return conf, note, False, [(ck or "new-customer", "new-transaction", cu, tv),
                                    ("new-transaction", mk or "new-merchant", tv, mv)]
 
-    def score(self, txs):
-        """Score a list of (cc_num, merchant, trans_num) with every available classifier."""
+    def score(self, txs, tracks=TRACKS):
+        """Score a list of (cc_num, merchant, trans_num) with the classifiers of `tracks`."""
         resolved = [self.resolve(*t) for t in txs]
         # batch every edge of every transaction per classifier: 16 predict_proba calls in total
         owner, A, B = [], [], []
@@ -180,8 +222,8 @@ class GraphModel:
         A = np.array(A).reshape(-1, self.vectors.shape[1])
         B = np.array(B).reshape(-1, self.vectors.shape[1])
 
-        probs = {track: {} for track in TRACKS}
-        for track in TRACKS:
+        probs = {track: {} for track in tracks}
+        for track in tracks:
             for op in OPERATORS:
                 p = self.predict(track, op, A, B)
                 sums = np.bincount(owner, weights=p, minlength=len(txs)) if len(p) else np.zeros(len(txs))
@@ -189,7 +231,7 @@ class GraphModel:
                 with np.errstate(invalid="ignore", divide="ignore"):
                     probs[track][op] = np.where(counts > 0, sums / np.maximum(counts, 1), np.nan)
 
-        return [Scored(probs={t: {op: float(probs[t][op][i]) for op in OPERATORS} for t in TRACKS},
+        return [Scored(probs={t: {op: float(probs[t][op][i]) for op in OPERATORS} for t in tracks},
                        confidence=c, note=n, in_sample=s, edges=e)
                 for i, (c, n, s, e) in enumerate(resolved)]
 
@@ -237,12 +279,13 @@ class GraphModel:
 class Engine:
     def __init__(self):
         self.manifest = json.loads((ARTIFACTS_DIR / "manifest.json").read_text(encoding="utf-8"))
-        self.graphs = {g: GraphModel(g) for g in GRAPHS}
+        self.cache = ModelCache()
+        self.graphs = {g: GraphModel(g, self.cache) for g in GRAPHS}
         self.merchants = sorted(self.graphs["tripartite"].merchant_key)
         self.customers = sorted(self.graphs["tripartite"].customer_key, key=int)
 
     def has_track(self, track):
-        return all((track, op) in self.graphs[g].models for g in GRAPHS for op in OPERATORS)
+        return all((track, op) in self.graphs[g].model_path for g in GRAPHS for op in OPERATORS)
 
     def precision_recall_at(self, graph, track, op, threshold):
         """Test-set precision/recall of a classifier at `threshold`, from the saved PR curve."""
@@ -252,12 +295,22 @@ class Engine:
         i = np.searchsorted(pr["thresholds"], threshold, side="left")   # predict fraud iff prob >= t
         return float(pr["precision"][i]), float(pr["recall"][i])
 
-    def score_frame(self, df):
+    def score_frame(self, df, tracks=TRACKS):
         """Score a validated frame. Returns (scores_by_graph, normalized merchant names)."""
         merchants = [self.normalize_merchant(m) for m in df["merchant"]]
         trans = df["trans_num"].tolist() if "trans_num" in df.columns else [None] * len(df)
         txs = list(zip(df["cc_num"].tolist(), merchants, trans))
-        return {g: self.graphs[g].score(txs) for g in GRAPHS}
+        return {g: self.graphs[g].score(txs, tracks) for g in GRAPHS}
+
+    def add_tracks(self, df, scores, tracks):
+        """Score `df` with any of `tracks` not yet in `scores` (in place), e.g. after a model toggle."""
+        missing = [t for t in tracks if t not in scores[GRAPHS[0]][0].probs]
+        if missing:
+            extra = self.score_frame(df, missing)
+            for g in GRAPHS:
+                for old, new in zip(scores[g], extra[g]):
+                    old.probs.update(new.probs)
+        return scores
 
     def normalize_merchant(self, name):
         """The Kaggle data prefixes every merchant with 'fraud_'; accept names without it."""

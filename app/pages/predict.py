@@ -48,7 +48,7 @@ def load(df, source):
         st.session_state.pop("batch", None)
         st.error("No valid rows to score.\n\n" + "\n".join(f"- {p}" for p in problems[:10]))
         return
-    st.session_state.update(batch=clean, scores=engine.score_frame(clean), problems=problems,
+    st.session_state.update(batch=clean, scores=engine.score_frame(clean, tracks), problems=problems,
                             source=source, selected=0)
 
 
@@ -96,7 +96,9 @@ if "batch" not in st.session_state:
     st.info("Enter a transaction, upload a CSV, or try the sample data.")
     st.stop()
 
-batch, scores = st.session_state.batch, st.session_state.scores
+batch = st.session_state.batch
+# only the model(s) on screen are scored; the other track is scored the first time it is shown
+scores = engine.add_tracks(batch, st.session_state.scores, tracks)
 if st.session_state.problems:
     with st.expander(f"⚠ {len(st.session_state.problems)} row(s) skipped"):
         st.write("\n".join(f"- {p}" for p in st.session_state.problems))
@@ -130,13 +132,13 @@ def results_frame(track_list):
 
 
 def download_frame():
-    """Everything, both tracks, labels at the current threshold."""
+    """Every scored track, with labels at the current threshold."""
     out = batch.copy()
     for g in GRAPHS:
         out[f"{g}_confidence"] = [s.confidence for s in scores[g]]
         out[f"{g}_note"] = [s.note for s in scores[g]]
         out[f"{g}_in_training_set"] = [s.in_sample for s in scores[g]]
-        for t in ["thesis", "enhanced"]:
+        for t in scores[g][0].probs:
             for op in OPERATORS:
                 p = [s.probs[t][op] for s in scores[g]]
                 out[f"{t}_{g}_{op}_prob"] = np.round(p, 4)

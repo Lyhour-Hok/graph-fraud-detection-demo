@@ -1,9 +1,34 @@
-# offline-only intermediates and logs (not needed by the website)
-build/
-data/
-*.log
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
-.venv/
+# Raw / intermediate data: never committed (Kaggle licence, size). The app only needs artifacts/.
+# build/ holds offline intermediates: df_b.parquet cache, per-combination JSON, logs.
+/build/
+/data/
+*.csv
+*.zip
+# held-out sample rows used by "Try with sample data"
+!artifacts/sample_transactions.csv
+# tiny malformed-input fixtures
+!tests/data/*.csv
+
+# Secrets and credentials
+kaggle.json
+.kaggle/
+.env
+.env.*
 .streamlit/secrets.toml
+
+# Python / tooling caches
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+*.ipynb
+.venv/
+venv/
+.pytest_cache/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

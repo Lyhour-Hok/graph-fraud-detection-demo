@@ -1,7 +1,10 @@
-# Website (Phase 2). scikit-learn must match the version that pickled the classifiers.
+# Runtime dependencies of the website only (the offline pipeline uses requirements-pipeline.txt).
+# Pinned to the Anaconda environment (Python 3.12.7) that trained the artifacts: scikit-learn must
+# match the pickled forests (*.joblib) and gensim the saved KeyedVectors (*.kv).
 streamlit==1.37.1
 scikit-learn==1.5.1
 gensim==4.3.3
+scipy==1.13.1
 numpy==1.26.4
 pandas==2.2.2
 pyarrow==16.1.0

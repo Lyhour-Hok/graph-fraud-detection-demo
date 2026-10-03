@@ -66,6 +66,15 @@ The tripartite score is the mean P(fraud) of the transaction's two edges. The am
 classifier input (it only weighted the random walks).
 
 ### Deploying to Streamlit Community Cloud
-Push the repo **including `artifacts/`** (excluding `build/` and the raw CSVs), pick Python 3.12
-and `streamlit_app.py` as the entry point. `requirements.txt` pins scikit-learn to the version that
-pickled the models. Check that no artifact exceeds GitHub's 100 MB file limit (use Git LFS if one does).
+Push the repo **including `artifacts/`** (`.gitignore` already excludes `build/`, raw CSVs and
+secrets). In *New app → Advanced settings* pick **Python 3.12** (the pins below have no wheels for
+3.13) and `streamlit_app.py` as the entry point. `requirements.txt` holds runtime dependencies only,
+pinned to the training environment: scikit-learn must match the pickled forests, gensim the `.kv`
+files. Every file is under GitHub's 100 MB limit (largest: `tripartite_wv.kv.vectors.npy`, 68 MB),
+so no Git LFS is needed.
+
+**Memory.** Classifiers load on first use, only for the model being viewed, through a shared LRU
+cache capped at `MODEL_BUDGET_MB` (default 600; set it as a root-level key in the app's *Secrets*
+to change it). Measured RSS: ~570 MB after startup, ~890 MB once the Thesis Model has scored,
+~1.23 GB peak with the Enhanced Model or side by side. A lower budget lowers the peak but makes
+Enhanced/side-by-side scoring reload evicted forests (~0.5 s each).
