@@ -116,6 +116,10 @@ class GraphModel:
             pairs = pd.read_parquet(ARTIFACTS_DIR / "bipartite_pairs.parquet")
             self.pairs = pairs
             self.pair_edge = dict(zip(zip(pairs.cust_key, pairs.merch_key), pairs.edge))
+            self.pair_label = (pairs.n_fraud.values > 0).astype(int)
+            # neighbor lookups for the plot: entity key -> row positions in `pairs`
+            self.cust_pairs = pairs.groupby("cust_key").indices
+            self.merch_pairs = pairs.groupby("merch_key").indices
         else:
             tx = pd.read_parquet(ARTIFACTS_DIR / "tripartite_transactions.parquet",
                                  columns=["tx_key", "cust_key", "merch_key", "trans_num", "amt",
@@ -247,18 +251,21 @@ class GraphModel:
                for (u, v, a, b) in scored.edges]
         focal = {x for e in scored.edges for x in e[:2]}
 
+        # (entity key -> row positions, key at the other end of each row), precomputed at load time
         if self.name == "bipartite":
             p = self.pairs
-            groups = [(p.cust_key.values, p.merch_key.values), (p.merch_key.values, p.cust_key.values)]
-            labels = (p.n_fraud.values > 0).astype(int)
+            groups = [(self.cust_pairs, p.merch_key.values), (self.merch_pairs, p.cust_key.values)]
+            labels = self.pair_label
         else:
             t = self.tx
-            groups = [(t.cust_key.values, t.tx_key.values), (t.merch_key.values, t.tx_key.values)]
+            groups = [(self.cust_rows, t.tx_key.values), (self.merch_rows, t.tx_key.values)]
             labels = t.is_fraud.values
 
-        for own, other in groups:
+        for index, other in groups:
             for node in focal:
-                rows = np.where(own == node)[0]
+                rows = index.get(node)
+                if rows is None:
+                    continue
                 rows = rows[~np.isin(other[rows], list(focal))]
                 if len(rows) > k:     # keep some fraud history visible when it exists
                     fraud, rest = rows[labels[rows] == 1], rows[labels[rows] == 0]
